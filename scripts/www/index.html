@@ -1,11 +1,1113 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus</title>
-    </head>
-    <body>
-        PakePlus
-    </body>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>C1304充填开采工作面充填算方系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            touch-action: manipulation;
+        }
+        /* 隐藏滚动条 */
+        body::-webkit-scrollbar { display: none; }
+        body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8f4f8 100%);
+            padding: 10px 5px;
+            line-height: 1.5;
+            font-size: 14px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 20px 15px;
+            border: 1px solid #e2e8f0;
+        }
+        /* 导航区样式 - 优化滚动和显示行数 */
+        .number-nav-wrapper {
+            max-height: calc(3 * (50px + 6px) + 16px); /* 3行按钮高度 + 间距 + 内边距 */
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            border: 1px solid #d1e7dd;
+            background: #f8fdfa;
+            /* 滚动条样式 */
+            scrollbar-width: thin;
+            scrollbar-color: #20c997 #f8fdfa;
+        }
+        .number-nav-wrapper::-webkit-scrollbar {
+            width: 8px;
+        }
+        .number-nav-wrapper::-webkit-scrollbar-track {
+            background: #f8fdfa;
+            border-radius: 10px;
+        }
+        .number-nav-wrapper::-webkit-scrollbar-thumb {
+            background-color: #20c997;
+            border-radius: 8px;
+            border: 2px solid #f8fdfa;
+        }
+        .number-nav {
+            background: linear-gradient(180deg, #f8fdfa 0%, #e8f4f8 100%);
+            padding: 10px 8px;
+            border-radius: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px; /* 按钮间距 */
+            min-height: 100%;
+        }
+        .number-btn {
+            /* 核心：强制所有按钮尺寸完全统一 */
+            width: calc((100% - 56px) / 8); /* 8个按钮 + 7个间距(8px) = 56px */
+            height: 52px; /* 统一高度 */
+            line-height: 50px; /* 垂直居中 */
+            text-align: center;
+            background: linear-gradient(135deg, #e8f4f8 0%, #d1e7dd 100%);
+            border: 2px solid #20c997;
+            border-radius: 10px; /* 增大圆角 */
+            color: #2c7a7b;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px; /* 增大按钮字体 */
+            flex-shrink: 0; /* 禁止按钮收缩 */
+            position: relative;
+            overflow: hidden;
+        }
+        .number-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        .number-btn:hover::before {
+            left: 100%;
+        }
+        .number-btn:hover { 
+            background: linear-gradient(135deg, #20c997 0%, #15aabf 100%); 
+            color: #fff; 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(32, 201, 151, 0.3);
+        }
+        .number-btn:active { 
+            transform: scale(0.95) translateY(0); 
+            box-shadow: 0 2px 6px rgba(32, 201, 151, 0.2);
+        }
+        .number-btn.special { 
+            background: linear-gradient(135deg, #fef2f2 0%, #fde2e2 100%); 
+            border-color: #e53e3e; 
+            color: #c53030; 
+        }
+        .number-btn.special:hover { 
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%); 
+            color: #fff; 
+        }
+        .number-btn.active, .number-btn.saved { 
+            background: linear-gradient(135deg, #20c997 0%, #198754 100%); 
+            border-color: #198754; 
+            color: #fff; 
+            box-shadow: 0 3px 10px rgba(25, 135, 84, 0.25);
+        }
+        
+        /* 头部样式 - 加大标题字体适配手机 */
+        .header {
+            background: linear-gradient(135deg, #2c5282 0%, #264653 100%);
+            padding: 20px 0; /* 增加内边距 */
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 4px 15px rgba(44, 82, 130, 0.2);
+            margin-bottom: 20px;
+            border-bottom: none;
+        }
+        .header h1 {
+            color: #fff;
+            font-size: 26px; /* 进一步加大标题字体 */
+            margin-bottom: 12px;
+            text-align: center;
+            padding: 0 10px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header p {
+            color: #e0f2fe;
+            font-size: 16px; /* 增大说明文字 */
+            text-align: center;
+            padding: 0 10px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        
+        /* 新增：充填剩余方数计算大标题样式 */
+        .remaining-calc-title {
+            color: #2c5282;
+            font-size: 24px;
+            margin: 25px 0 15px 0;
+            padding: 18px 15px;
+            background: linear-gradient(135deg, #e8f4f8 0%, #d1e7dd 100%);
+            border-radius: 10px;
+            font-weight: bold;
+            text-align: center;
+            border-left: 6px solid #20c997;
+            box-shadow: 0 3px 10px rgba(32, 201, 151, 0.15);
+        }
+        
+        /* 支架录入区 - 默认显示 */
+        .bracket-section {
+            margin-bottom: 25px;
+        }
+        .section-title {
+            color: #2c5282;
+            font-size: 19px; /* 增大分区标题 */
+            margin-bottom: 15px;
+            padding: 15px 12px;
+            background: linear-gradient(135deg, #e8f4f8 0%, #d1e7dd 100%);
+            border-radius: 8px;
+            font-weight: bold;
+            border-left: 5px solid #20c997;
+            box-shadow: 0 2px 8px rgba(32, 201, 151, 0.1);
+        }
+        /* 单个支架项样式 */
+        .bracket-item {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            display: none; /* 默认收起 */
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .bracket-item.active {
+            display: block; /* 激活时显示 */
+            border: 2px solid #20c997;
+            box-shadow: 0 4px 15px rgba(32, 201, 151, 0.15);
+            transform: translateY(-3px);
+        }
+        .bracket-item.special {
+            border-left: 5px solid #e53e3e;
+            background: linear-gradient(90deg, #fef2f2 0%, #fff 100%);
+        }
+        .bracket-item h3 {
+            color: #2c5282;
+            margin-bottom: 20px;
+            font-size: 19px; /* 增大支架标题 */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e8f4f8;
+        }
+        .special-tag {
+            color: #e53e3e;
+            font-size: 15px; /* 增大标签字体 */
+            font-weight: bold;
+            margin-left: 10px;
+            background: linear-gradient(135deg, #fef2f2 0%, #fde2e2 100%);
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #fecdd3;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .input-group label {
+            font-weight: bold;
+            color: #2d3748;
+            min-width: 100px; /* 增大标签宽度 */
+            font-size: 17px; /* 增大标签字体 */
+        }
+        .input-group input {
+            flex: 1;
+            padding: 15px 14px; /* 增大输入框内边距 */
+            border: 1px solid #cbd5e0;
+            border-radius: 8px; /* 增大输入框圆角 */
+            font-size: 17px; /* 增大输入字体 */
+            min-height: 52px; /* 增大输入框高度 */
+            min-width: 200px;
+            transition: all 0.3s ease;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #20c997;
+            box-shadow: 0 0 0 4px rgba(32, 201, 151, 0.15);
+        }
+        .input-group input[readonly] {
+            background: linear-gradient(135deg, #f8fdfa 0%, #e8f4f8 100%);
+            color: #4a5568;
+            border-color: #d1e7dd;
+        }
+        .volume-display {
+            padding: 18px 15px;
+            background: linear-gradient(135deg, #e8f4f8 0%, #d1e7dd 100%);
+            border-radius: 8px;
+            font-size: 18px; /* 增大体积显示字体 */
+            color: #2c5282;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+        /* 保存按钮样式 */
+        .btn-save-single {
+            width: 100%;
+            padding: 16px 15px; /* 增大按钮内边距 */
+            background: linear-gradient(135deg, #20c997 0%, #198754 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px; /* 增大按钮字体 */
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 58px; /* 增大按钮高度 */
+            box-shadow: 0 3px 10px rgba(32, 201, 151, 0.2);
+        }
+        .btn-save-single:hover { 
+            background: linear-gradient(135deg, #15aabf 0%, #198754 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(32, 201, 151, 0.3);
+        }
+        .btn-save-single:active { 
+            transform: scale(0.98) translateY(0); 
+            box-shadow: 0 2px 8px rgba(32, 201, 151, 0.2);
+        }
+        .save-success {
+            color: #198754;
+            font-size: 15px;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+            font-weight: bold;
+        }
+        
+        /* 分组统计区 */
+        .group-section {
+            background: linear-gradient(135deg, #f8fdfa 0%, #e8f4f8 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #d1e7dd;
+        }
+        .group-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        .group-item {
+            background: #fff;
+            padding: 20px; /* 增大内边距 */
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .group-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .group-item h3 {
+            color: #2c5282;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8f4f8;
+            font-size: 18px; /* 增大分组标题 */
+            font-weight: bold;
+        }
+        .group-stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px; /* 增大间距 */
+            font-size: 16px; /* 增大统计字体 */
+            padding: 8px 0;
+        }
+        .group-input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 15px 0; /* 增大间距 */
+            padding: 15px 12px; /* 增大内边距 */
+            background: linear-gradient(135deg, #f8fdfa 0%, #e8f4f8 100%);
+            border-radius: 8px;
+            flex-wrap: wrap;
+            border: 1px solid #d1e7dd;
+        }
+        .group-input-row label {
+            font-weight: bold;
+            color: #2c5282;
+            min-width: 110px; /* 增大标签宽度 */
+            font-size: 17px; /* 增大标签字体 */
+        }
+        .group-input-row input {
+            padding: 15px 12px; /* 增大输入框内边距 */
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 17px; /* 增大输入字体 */
+            width: calc(100% - 120px);
+            min-height: 52px; /* 增大输入框高度 */
+            transition: all 0.3s ease;
+        }
+        .group-input-row input:focus { 
+            outline: none; 
+            border-color: #20c997;
+            box-shadow: 0 0 0 4px rgba(32, 201, 151, 0.15);
+        }
+        .stat-label { 
+            color: #4a5568; 
+            opacity: 0.9;
+        }
+        .stat-value { 
+            color: #2d3748; 
+            font-weight: bold; 
+        }
+        .remaining-volume { 
+            color: #e53e3e; 
+            font-size: 17px; 
+            font-weight: bold; 
+        }
+        
+        /* 调整：单独的总体积展示模块样式 */
+        .total-filled-section {
+            background: linear-gradient(135deg, #f8fdfa 0%, #e8f4f8 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #d1e7dd;
+            text-align: center;
+        }
+        .total-filled-title {
+            color: #2c5282;
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .total-filled-value {
+            color: #20c997;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        /* 汇总统计区（调整后仅保留剩余部分） */
+        .summary-section {
+            background: linear-gradient(135deg, #2c5282 0%, #264653 100%);
+            color: #fff;
+            padding: 25px 20px; /* 增大内边距 */
+            border-radius: 12px;
+            margin-top: 25px;
+            box-shadow: 0 5px 20px rgba(44, 82, 130, 0.2);
+        }
+        .summary-title {
+            font-size: 22px; /* 增大汇总标题 */
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        .summary-item {
+            text-align: center;
+            padding: 25px 20px; /* 增大内边距 */
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+        .summary-item:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .summary-label {
+            font-size: 18px; /* 增大标签字体 */
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        .summary-value { 
+            font-size: 28px; 
+            font-weight: bold; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .total-remaining { 
+            color: #ffc107; 
+            font-size: 30px; 
+        }
+        
+        /* 操作按钮 */
+        .btn-group {
+            text-align: center;
+            margin: 25px 0; /* 增大间距 */
+            display: flex;
+            gap: 15px;
+            padding: 0 5px;
+        }
+        .btn {
+            padding: 16px 0; /* 增大内边距 */
+            font-size: 19px; /* 增大按钮字体 */
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            flex: 1;
+            min-height: 62px; /* 增大按钮高度 */
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .btn:active { 
+            transform: scale(0.98); 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .btn-reset { 
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%); 
+            color: #fff; 
+        }
+        .btn-reset:hover { 
+            background: linear-gradient(135deg, #d92d20 0%, #b32424 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(229, 62, 62, 0.3);
+        }
+        .btn-clear { 
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%); 
+            color: #fff; 
+        }
+        .btn-clear:hover { 
+            background: linear-gradient(135deg, #5a6778 0%, #2d3748 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(113, 128, 150, 0.3);
+        }
+        
+        /* 保存基础数据按钮（调整位置后的样式） */
+        .save-section { 
+            text-align: center; 
+            margin: 25px 0 20px 0; 
+            padding: 20px 0;
+            border-top: 2px solid #e8f4f8;
+            border-bottom: 2px solid #e8f4f8;
+        }
+        .btn-save {
+            padding: 20px 40px; /* 增大内边距 */
+            font-size: 19px; /* 增大按钮字体 */
+            background: linear-gradient(135deg, #20c997 0%, #198754 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(32, 201, 151, 0.2);
+            width: 90%;
+            transition: all 0.3s ease;
+            min-height: 68px; /* 增大按钮高度 */
+            font-weight: bold;
+        }
+        .btn-save:active { 
+            transform: scale(0.98); 
+            box-shadow: 0 2px 8px rgba(32, 201, 151, 0.2);
+        }
+        .btn-save:hover { 
+            background: linear-gradient(135deg, #15aabf 0%, #198754 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(32, 201, 151, 0.3);
+        }
+        .save-status {
+            margin-top: 12px;
+            color: #198754;
+            font-weight: bold;
+            display: none;
+            font-size: 15px;
+        }
+        
+        /* 响应式适配 - 针对手机端优化 */
+        @media (max-width: 768px) {
+            .container { 
+                padding: 15px 8px; 
+            }
+            
+            /* 手机端导航容器高度调整 */
+            .number-nav-wrapper {
+                max-height: calc(3 * (48px + 8px) + 16px);
+            }
+            
+            /* 手机端导航按钮优化 - 7个一行 */
+            .number-btn {
+                width: calc((100% - 48px) / 7); /* 7个按钮 + 6个间距(8px) = 48px */
+                height: 48px;
+                line-height: 46px;
+                font-size: 15px;
+            }
+            
+            .header h1 { font-size: 24px; }
+            .header p { font-size: 15px; }
+            
+            /* 响应式调整新增标题 */
+            .remaining-calc-title { font-size: 22px; }
+            
+            .section-title { font-size: 18px; }
+            .bracket-item { padding: 15px; }
+            .bracket-item h3 { font-size: 18px; }
+            
+            .input-group label { min-width: 90px; font-size: 16px; }
+            .input-group input { 
+                min-width: 0; 
+                width: calc(100% - 100px);
+                font-size: 16px;
+                min-height: 50px;
+            }
+            
+            .group-input-row label { min-width: 100px; font-size: 16px; }
+            .group-input-row input { 
+                width: calc(100% - 110px);
+                font-size: 16px;
+                min-height: 50px;
+            }
+            
+            /* 响应式调整总体积展示 */
+            .total-filled-value { font-size: 24px; }
+            
+            .summary-value { font-size: 26px; }
+            .total-remaining { font-size: 28px; }
+            
+            .btn { font-size: 18px; min-height: 58px; }
+            .btn-save { font-size: 18px; min-height: 62px; }
+        }
+        
+        @media (max-width: 420px) {
+            /* 小屏手机导航容器高度调整 */
+            .number-nav-wrapper {
+                max-height: calc(3 * (45px + 8px) + 16px);
+            }
+            
+            /* 小屏手机优化 - 6个一行 */
+            .number-btn {
+                width: calc((100% - 40px) / 6); /* 6个按钮 + 5个间距(8px) = 40px */
+                height: 45px;
+                line-height: 43px;
+                font-size: 14px;
+            }
+            
+            .header h1 { font-size: 22px; }
+            .header p { font-size: 14px; }
+            
+            /* 小屏调整新增标题 */
+            .remaining-calc-title { font-size: 20px; }
+            
+            .section-title { font-size: 17px; }
+            .bracket-item h3 { font-size: 17px; }
+            
+            .input-group input { font-size: 15px; min-height: 48px; }
+            .group-input-row input { font-size: 15px; min-height: 48px; }
+            
+            /* 小屏调整总体积展示 */
+            .total-filled-value { font-size: 22px; }
+            
+            .summary-value { font-size: 24px; }
+            .total-remaining { font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>C1304充填开采工作面充填算方系统</h1>
+            <p>长度固定1.75m | 1/67号架仅为基础数据不参与计算 | 自动统计有效架数</p>
+        </div>
+
+        <!-- 数字导航区 - 新增滚动容器 -->
+        <div class="number-nav-wrapper" id="numberNavWrapper">
+            <div class="number-nav" id="numberNav">
+                <!-- JS动态生成按钮 -->
+            </div>
+        </div>
+
+        <!-- 支架录入区 -->
+        <div class="bracket-section">
+            <!-- 支架录入区域 -->
+            <h2 class="section-title">支架数据录入（点击上方数字展开对应支架）</h2>
+            <div class="bracket-grid" id="bracketGrid"></div>
+        </div>
+
+        <!-- 调整：保存基础数据按钮移到此处 -->
+        <div class="save-section">
+            <button class="btn-save" id="saveBaseData">保存1-67号架基础数据</button>
+            <div class="save-status" id="saveStatus">✅ 基础数据已保存！后续分组计算将基于此数据</div>
+        </div>
+
+        <!-- 调整：将67架预计充填总体积模块移到此处（大标题上方） -->
+        <div class="total-filled-section">
+            <div class="total-filled-title">67架预计充填总体积</div>
+            <div class="total-filled-value" id="totalFilledVolume">0.00 m³</div>
+        </div>
+
+        <!-- 新增：充填剩余方数计算大标题 -->
+        <h2 class="remaining-calc-title">充填剩余方数计算</h2>
+
+        <!-- 分组统计区 -->
+        <div class="group-section">
+            <h2 class="section-title">分组统计（输入还需充填高度）</h2>
+            <div class="group-grid" id="groupGrid"></div>
+        </div>
+
+        <!-- 汇总统计区（调整后） -->
+        <div class="summary-section">
+            <h2 class="summary-title">工作面充填数据汇总</h2>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">参与计算的有效架数</div>
+                    <div class="summary-value" id="validBracketCount">0 架</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">工作面还需充填总量</div>
+                    <div class="summary-value total-remaining" id="totalRemainingVolume">0.00 m³</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="btn-group">
+            <button class="btn btn-reset" id="resetAll">重置所有数据</button>
+            <button class="btn btn-clear" id="clearEmpty">清空未填写项</button>
+        </div>
+    </div>
+
+    <script>
+        // 常量定义
+        const BRACKET_COUNT = 67;
+        const FIXED_LENGTH = 1.75;
+        const EXCLUDE_BRACKETS = [1, 67];
+
+        // 全局变量
+        const totalFilledVolumeEl = document.getElementById('totalFilledVolume');
+        const totalRemainingVolumeEl = document.getElementById('totalRemainingVolume');
+        const validBracketCountEl = document.getElementById('validBracketCount');
+        const resetAllBtn = document.getElementById('resetAll');
+        const clearEmptyBtn = document.getElementById('clearEmpty');
+        const saveBaseDataBtn = document.getElementById('saveBaseData');
+        const saveStatusEl = document.getElementById('saveStatus');
+        const numberNavEl = document.getElementById('numberNav');
+        const bracketGridEl = document.getElementById('bracketGrid');
+        
+        // 全局状态
+        let groupNeedHeights = {};
+        let savedBaseData = null;
+        let totalValidBrackets = 0;
+        let activeBracketNum = null;
+        let savedBrackets = new Set(); // 记录已保存的支架编号
+
+        // 立即执行初始化
+        initNumberNav();
+        initBracketItems();
+        initGroupStats();
+        initEventListeners();
+        calculateAllStats();
+
+        // 初始化数字导航按钮
+        function initNumberNav() {
+            numberNavEl.innerHTML = '';
+            
+            for (let i = 1; i <= BRACKET_COUNT; i++) {
+                const btn = document.createElement('span');
+                btn.className = `number-btn ${EXCLUDE_BRACKETS.includes(i) ? 'special' : ''} ${savedBrackets.has(i) ? 'saved' : ''}`;
+                btn.textContent = i;
+                btn.dataset.num = i;
+                
+                btn.addEventListener('click', function() {
+                    const num = parseInt(this.dataset.num);
+                    expandBracketItem(num);
+                    updateActiveNumberBtn(num);
+                });
+                
+                numberNavEl.appendChild(btn);
+            }
+        }
+
+        // 展开对应支架项，收起其他
+        function expandBracketItem(num) {
+            // 收起所有支架项
+            document.querySelectorAll('.bracket-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 展开选中的支架项
+            const targetItem = document.getElementById(`bracket-${num}`);
+            if (targetItem) {
+                targetItem.classList.add('active');
+                activeBracketNum = num;
+                
+                // 滚动到该支架项位置
+                targetItem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // 自动聚焦到高度输入框
+                setTimeout(() => {
+                    const heightInput = document.getElementById(`height-${num}`);
+                    if (heightInput) heightInput.focus();
+                }, 100);
+            }
+        }
+
+        // 更新激活按钮样式
+        function updateActiveNumberBtn(num) {
+            if (activeBracketNum) {
+                const prevBtn = document.querySelector(`.number-btn[data-num="${activeBracketNum}"]`);
+                if (prevBtn) prevBtn.classList.remove('active');
+            }
+            const currentBtn = document.querySelector(`.number-btn[data-num="${num}"]`);
+            if (currentBtn) {
+                currentBtn.classList.add('active');
+                activeBracketNum = num;
+                
+                // 滚动到当前激活的按钮位置（可选优化）
+                const navWrapper = document.getElementById('numberNavWrapper');
+                currentBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        // 初始化所有支架项
+        function initBracketItems() {
+            bracketGridEl.innerHTML = '';
+            
+            for (let i = 1; i <= BRACKET_COUNT; i++) {
+                bracketGridEl.appendChild(createBracketItem(i));
+            }
+        }
+
+        // 创建单个支架项
+        function createBracketItem(num) {
+            const item = document.createElement('div');
+            item.className = `bracket-item ${EXCLUDE_BRACKETS.includes(num) ? 'special' : ''}`;
+            item.id = `bracket-${num}`;
+            
+            const specialTag = EXCLUDE_BRACKETS.includes(num) ? 
+                '<span class="special-tag">仅基础数据</span>' : '';
+            
+            item.innerHTML = `
+                <h3>${num}号支架 ${specialTag}</h3>
+                <div class="input-group">
+                    <label>充填高度 (m)：</label>
+                    <input type="number" id="height-${num}" step="0.01" min="0" placeholder="请输入预计高度" 
+                           oninput="calculateSingleVolume(${num})">
+                </div>
+                <div class="input-group">
+                    <label>充填宽度 (m)：</label>
+                    <input type="number" id="width-${num}" step="0.01" min="0" placeholder="请输入宽度" 
+                           oninput="calculateSingleVolume(${num})">
+                </div>
+                <div class="input-group">
+                    <label>固定长度 (m)：</label>
+                    <input type="text" value="${FIXED_LENGTH}" readonly style="background: #f5f5f5; color: #666;">
+                </div>
+                <div class="volume-display">
+                    预计充填体积：<span id="volume-${num}">0.00</span> m³
+                </div>
+                <!-- 单个支架保存按钮 -->
+                <button class="btn-save-single" onclick="saveSingleBracket(${num})">保存${num}号支架数据</button>
+                <div class="save-success" id="save-success-${num}">✅ ${num}号支架数据已保存！</div>
+            `;
+            
+            return item;
+        }
+
+        // 保存单个支架数据
+        function saveSingleBracket(num) {
+            const widthInput = document.getElementById(`width-${num}`);
+            const heightInput = document.getElementById(`height-${num}`);
+            
+            const width = parseFloat(widthInput.value) || 0;
+            const height = parseFloat(heightInput.value) || 0;
+            
+            // 验证输入
+            if (width <= 0 || height <= 0) {
+                alert(`${num}号支架：请先输入有效的高度和宽度！`);
+                return;
+            }
+            
+            // 标记为已保存
+            savedBrackets.add(num);
+            
+            // 更新导航按钮为绿色
+            const navBtn = document.querySelector(`.number-btn[data-num="${num}"]`);
+            if (navBtn) {
+                navBtn.classList.add('saved');
+            }
+            
+            // 显示保存成功提示
+            const successMsg = document.getElementById(`save-success-${num}`);
+            successMsg.style.display = 'block';
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 2000);
+            
+            // 更新基础数据
+            if (!savedBaseData) savedBaseData = {};
+            savedBaseData[num] = {
+                width: width,
+                height: height,
+                volume: (width * height * FIXED_LENGTH).toFixed(2)
+            };
+            
+            // 重新计算统计数据
+            calculateAllStats();
+            
+            console.log(`${num}号支架数据已保存：宽度=${width}, 高度=${height}`);
+        }
+
+        // 初始化分组统计
+        function initGroupStats() {
+            const groupGrid = document.getElementById('groupGrid');
+            const customGroups = [
+                { start: 1, end: 5, calcStart: 2, calcEnd: 5 },
+                { start: 6, end: 10, calcStart: 6, calcEnd: 10 },
+                { start: 11, end: 15, calcStart: 11, calcEnd: 15 },
+                { start: 16, end: 20, calcStart: 16, calcEnd: 20 },
+                { start: 21, end: 25, calcStart: 21, calcEnd: 25 },
+                { start: 26, end: 30, calcStart: 26, calcEnd: 30 },
+                { start: 31, end: 35, calcStart: 31, calcEnd: 35 },
+                { start: 36, end: 40, calcStart: 36, calcEnd: 40 },
+                { start: 41, end: 45, calcStart: 41, calcEnd: 45 },
+                { start: 46, end: 50, calcStart: 46, calcEnd: 50 },
+                { start: 51, end: 55, calcStart: 51, calcEnd: 55 },
+                { start: 56, end: 60, calcStart: 56, calcEnd: 60 },
+                { start: 61, end: 67, calcStart: 61, calcEnd: 66 }
+            ];
+
+            customGroups.forEach((group, index) => {
+                const groupNum = index + 1;
+                const { start, end, calcStart, calcEnd } = group;
+                const displayRange = `${start}-${end}号`;
+                const calcRange = `${calcStart}-${calcEnd}号`;
+
+                const groupItem = document.createElement('div');
+                groupItem.className = 'group-item';
+                groupItem.id = `group-${groupNum}`;
+                
+                groupItem.innerHTML = `
+                    <h3>${displayRange}支架（第${groupNum}组）</h3>
+                    <div class="group-stat">
+                        <span class="stat-label">参与计算的支架范围：</span>
+                        <span class="stat-value">${calcRange}</span>
+                    </div>
+                    <div class="group-stat">
+                        <span class="stat-label">本组平均宽度：</span>
+                        <span class="stat-value" id="group-avg-width-${groupNum}">0.00 m</span>
+                    </div>
+                    <div class="group-stat">
+                        <span class="stat-label">本组有效支架数：</span>
+                        <span class="stat-value" id="group-valid-count-${groupNum}">0 架</span>
+                    </div>
+                    <div class="group-input-row">
+                        <label>还需充填高度：</label>
+                        <input type="number" id="group-need-height-${groupNum}" step="0.01" min="0" 
+                               placeholder="输入高度(m)" oninput="calculateGroupNeedVolume(${groupNum})">
+                        <span style="color:#666; font-size:12px">（仅需输入高度）</span>
+                    </div>
+                    <div class="group-stat">
+                        <span class="stat-label">本组还需充填体积：</span>
+                        <span class="stat-value remaining-volume" id="group-need-volume-${groupNum}">0.00 m³</span>
+                    </div>
+                `;
+                
+                groupGrid.appendChild(groupItem);
+                groupNeedHeights[groupNum] = 0;
+            });
+        }
+
+        // 计算单个支架体积
+        function calculateSingleVolume(num) {
+            const widthInput = document.getElementById(`width-${num}`);
+            const heightInput = document.getElementById(`height-${num}`);
+            const volumeEl = document.getElementById(`volume-${num}`);
+
+            const width = parseFloat(widthInput.value) || 0;
+            const height = parseFloat(heightInput.value) || 0;
+            const volume = (width * height * FIXED_LENGTH).toFixed(2);
+            
+            volumeEl.textContent = volume;
+            calculateAllStats();
+        }
+
+        // 计算分组还需充填体积
+        function calculateGroupNeedVolume(groupNum) {
+            const needHeightInput = document.getElementById(`group-need-height-${groupNum}`);
+            const needHeight = parseFloat(needHeightInput.value) || 0;
+            groupNeedHeights[groupNum] = needHeight;
+            calculateAllStats();
+        }
+
+        // 保存基础数据
+        function saveBaseData() {
+            const baseData = {};
+            let hasData = false;
+            
+            for (let i = 1; i <= BRACKET_COUNT; i++) {
+                const width = parseFloat(document.getElementById(`width-${i}`).value) || 0;
+                const height = parseFloat(document.getElementById(`height-${i}`).value) || 0;
+                
+                baseData[i] = { width, height, volume: (width * height * FIXED_LENGTH).toFixed(2) };
+                if (width > 0 && height > 0) {
+                    hasData = true;
+                    savedBrackets.add(i); // 标记为已保存
+                    // 更新导航按钮样式
+                    const navBtn = document.querySelector(`.number-btn[data-num="${i}"]`);
+                    if (navBtn) navBtn.classList.add('saved');
+                }
+            }
+            
+            if (!hasData) {
+                alert('请先输入1-67号架的基础数据后再保存！');
+                return;
+            }
+            
+            savedBaseData = baseData;
+            saveStatusEl.style.display = 'block';
+            setTimeout(() => saveStatusEl.style.display = 'none', 3000);
+            calculateAllStats();
+            alert('基础数据保存成功！所有已填写的支架导航键已标记为绿色');
+        }
+
+        // 计算所有统计数据
+        function calculateAllStats() {
+            let totalFilledVolume = 0;
+            let totalRemainingVolume = 0;
+            totalValidBrackets = 0;
+
+            const customGroups = [
+                { start: 1, end: 5, calcStart: 2, calcEnd: 5 },
+                { start: 6, end: 10, calcStart: 6, calcEnd: 10 },
+                { start: 11, end: 15, calcStart: 11, calcEnd: 15 },
+                { start: 16, end: 20, calcStart: 16, calcEnd: 20 },
+                { start: 21, end: 25, calcStart: 21, calcEnd: 25 },
+                { start: 26, end: 30, calcStart: 26, calcEnd: 30 },
+                { start: 31, end: 35, calcStart: 31, calcEnd: 35 },
+                { start: 36, end: 40, calcStart: 36, calcEnd: 40 },
+                { start: 41, end: 45, calcStart: 41, calcEnd: 45 },
+                { start: 46, end: 50, calcStart: 46, calcEnd: 50 },
+                { start: 51, end: 55, calcStart: 51, calcEnd: 55 },
+                { start: 56, end: 60, calcStart: 56, calcEnd: 60 },
+                { start: 61, end: 67, calcStart: 61, calcEnd: 66 }
+            ];
+
+            customGroups.forEach((group, index) => {
+                const groupNum = index + 1;
+                const { calcStart, calcEnd } = group;
+                
+                let groupWidthSum = 0;
+                let groupFilledVolume = 0;
+                let groupValidCount = 0;
+
+                const dataSource = savedBaseData || {};
+
+                for (let j = calcStart; j <= calcEnd; j++) {
+                    let width = 0, height = 0;
+                    if (dataSource[j]) {
+                        width = dataSource[j].width;
+                        height = dataSource[j].height;
+                    } else {
+                        width = parseFloat(document.getElementById(`width-${j}`).value) || 0;
+                        height = parseFloat(document.getElementById(`height-${j}`).value) || 0;
+                    }
+                    
+                    if (width > 0 && height > 0) {
+                        groupWidthSum += width;
+                        groupFilledVolume += width * height * FIXED_LENGTH;
+                        groupValidCount++;
+                        totalValidBrackets++;
+                    }
+                }
+
+                const groupAvgWidth = groupValidCount > 0 ? (groupWidthSum / groupValidCount).toFixed(2) : 0;
+                document.getElementById(`group-avg-width-${groupNum}`).textContent = `${groupAvgWidth} m`;
+                document.getElementById(`group-valid-count-${groupNum}`).textContent = `${groupValidCount} 架`;
+
+                totalFilledVolume += groupFilledVolume;
+
+                const needHeight = groupNeedHeights[groupNum] || 0;
+                const needVolume = (parseFloat(groupAvgWidth) * FIXED_LENGTH * needHeight * groupValidCount).toFixed(2);
+                document.getElementById(`group-need-volume-${groupNum}`).textContent = `${needVolume} m³`;
+                totalRemainingVolume += parseFloat(needVolume);
+            });
+
+            totalFilledVolumeEl.textContent = `${totalFilledVolume.toFixed(2)} m³`;
+            validBracketCountEl.textContent = `${totalValidBrackets} 架`;
+            totalRemainingVolumeEl.textContent = `${totalRemainingVolume.toFixed(2)} m³`;
+        }
+
+        // 重置所有数据
+        function resetAllData() {
+            if (!confirm('确定要重置所有支架数据吗？')) return;
+            
+            for (let i = 1; i <= BRACKET_COUNT; i++) {
+                document.getElementById(`width-${i}`).value = '';
+                document.getElementById(`height-${i}`).value = '';
+                document.getElementById(`volume-${i}`).textContent = '0.00';
+                document.getElementById(`bracket-${i}`).classList.remove('active');
+                
+                // 重置保存状态
+                savedBrackets.delete(i);
+                const navBtn = document.querySelector(`.number-btn[data-num="${i}"]`);
+                if (navBtn) navBtn.classList.remove('saved');
+            }
+
+            const totalGroups = 13;
+            for (let i = 1; i <= totalGroups; i++) {
+                const input = document.getElementById(`group-need-height-${i}`);
+                if (input) input.value = '';
+                document.getElementById(`group-need-volume-${i}`).textContent = '0.00 m³';
+                groupNeedHeights[i] = 0;
+            }
+
+            savedBaseData = null;
+            saveStatusEl.style.display = 'none';
+            activeBracketNum = null;
+            document.querySelectorAll('.number-btn').forEach(btn => btn.classList.remove('active'));
+            calculateAllStats();
+        }
+
+        // 清空未填写项
+        function clearEmptyItems() {
+            if (!confirm('确定要清空未填写的支架数据吗？')) return;
+            
+            for (let i = 1; i <= BRACKET_COUNT; i++) {
+                const width = parseFloat(document.getElementById(`width-${i}`).value) || 0;
+                const height = parseFloat(document.getElementById(`height-${i}`).value) || 0;
+                
+                if (width === 0 && height === 0) {
+                    document.getElementById(`width-${i}`).value = '';
+                    document.getElementById(`height-${i}`).value = '';
+                    document.getElementById(`volume-${i}`).textContent = '0.00';
+                    
+                    // 清空未填写项的保存状态
+                    savedBrackets.delete(i);
+                    const navBtn = document.querySelector(`.number-btn[data-num="${i}"]`);
+                    if (navBtn) navBtn.classList.remove('saved');
+                }
+            }
+            calculateAllStats();
+        }
+
+        // 绑定事件
+        function initEventListeners() {
+            resetAllBtn.addEventListener('click', resetAllData);
+            clearEmptyBtn.addEventListener('click', clearEmptyItems);
+            saveBaseDataBtn.addEventListener('click', saveBaseData);
+        }
+    </script>
+</body>
 </html>
