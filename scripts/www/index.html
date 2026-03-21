@@ -1,11 +1,992 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus</title>
-    </head>
-    <body>
-        PakePlus
-    </body>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>C1304充填开采工作面充填算方系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            touch-action: manipulation;
+        }
+        body::-webkit-scrollbar { display: none; }
+        body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8f4f8 100%);
+            padding: 10px 5px;
+            line-height: 1.5;
+            font-size: 14px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 20px 15px;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* 手机友好导入按钮 */
+        .mobile-import-box {
+            background: linear-gradient(135deg, #E8F4F8 0%, #D1E7DD 100%);
+            border: 2px dashed #20c997;
+            border-radius: 12px;
+            padding: 22px 16px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .import-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c5282;
+            margin-bottom: 12px;
+        }
+        .file-input-label {
+            display: inline-block;
+            padding: 14px 32px;
+            background: #20c997;
+            color: #fff;
+            font-size: 17px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        #excelFileInput {
+            display: none;
+        }
+        .import-tip {
+            font-size: 14px;
+            color: #444;
+            line-height: 1.5;
+        }
+        .import-success {
+            color: #198754;
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+        }
+        .import-error {
+            color: #e53e3e;
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* 导航区 */
+        .number-nav-wrapper {
+            max-height: calc(3 * (50px + 6px) + 16px);
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            border: 1px solid #d1e7dd;
+            background: #f8fdfa;
+        }
+        .number-nav {
+            padding: 10px 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .number-btn {
+            width: calc((100% - 56px) / 8);
+            height: 52px;
+            line-height: 50px;
+            text-align: center;
+            background: #e8f4f8;
+            border: 2px solid #20c997;
+            border-radius: 10px;
+            color: #2c7a7b;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .number-btn:hover {
+            background: #20c997;
+            color: #fff;
+        }
+        .number-btn.special {
+            background: #fef2f2;
+            border-color: #e53e3e;
+            color: #c53030;
+        }
+        .number-btn.active, .number-btn.saved {
+            background: #20c997;
+            color: #fff;
+        }
+
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, #2c5282 0%, #264653 100%);
+            padding: 20px 0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #fff;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .header p {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        /* 支架录入 */
+        .bracket-section {
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 19px;
+            margin-bottom: 15px;
+            padding: 15px 12px;
+            background: #e8f4f8;
+            border-radius: 8px;
+            font-weight: bold;
+            border-left: 5px solid #20c997;
+        }
+        .bracket-item {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            display: none;
+            border: 1px solid #e2e8f0;
+        }
+        .bracket-item.active {
+            display: block;
+            border: 2px solid #20c997;
+        }
+        .bracket-item.special {
+            border-left: 5px solid #e53e3e;
+            background: linear-gradient(90deg, #fef2f2 0%, #fff 100%);
+        }
+        .bracket-item h3 {
+            color: #2c5282;
+            margin-bottom: 16px;
+            font-size: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e8f4f8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .special-tag {
+            background: #fef2f2;
+            color: #e53e3e;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 14px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .input-group label {
+            min-width: 100px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 16px;
+            min-height: 48px;
+            min-width: 180px;
+        }
+        .volume-display {
+            padding: 14px;
+            background: #e8f4f8;
+            border-radius: 8px;
+            font-size: 17px;
+            color: #2c5282;
+            font-weight: bold;
+            text-align: center;
+            margin: 14px 0;
+        }
+        .btn-save-single {
+            width: 100%;
+            padding: 14px;
+            background: #20c997;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        /* 支架切换按钮样式 */
+        .bracket-nav-btns {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .bracket-nav-btn {
+            flex: 1;
+            padding: 12px;
+            background: #2c5282;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .bracket-nav-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .save-success {
+            color: #198754;
+            text-align: center;
+            margin-top: 8px;
+            display: none;
+            font-weight: bold;
+        }
+
+        /* 保存基础数据 */
+        .save-section {
+            text-align: center;
+            margin: 25px 0 20px;
+            padding: 20px 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+        .btn-save {
+            padding: 18px 40px;
+            background: #20c997;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 90%;
+        }
+        .save-status {
+            color: #198754;
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* 总体积 */
+        .total-filled-section {
+            background: #f8fdfa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid #d1e7dd;
+        }
+        .total-filled-title {
+            font-size: 18px;
+            color: #2c5282;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .total-filled-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #20c997;
+        }
+
+        /* 剩余方数标题 */
+        .remaining-calc-title {
+            font-size: 22px;
+            background: #e8f4f8;
+            padding: 16px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            color: #2c5282;
+            border-left: 6px solid #20c997;
+            margin-bottom: 20px;
+        }
+
+        /* 分组统计 */
+        .group-section {
+            background: #f8fdfa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .group-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        .group-item {
+            background: #fff;
+            padding: 18px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .group-item h3 {
+            font-size: 18px;
+            color: #2c5282;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .group-stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        .group-input-row {
+            background: #e8f4f8;
+            padding: 14px;
+            border-radius: 8px;
+            margin: 12px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .group-input-row label {
+            min-width: 110px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .group-input-row input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 16px;
+            min-height: 48px;
+        }
+        .remaining-volume {
+            color: #e53e3e;
+            font-weight: bold;
+        }
+
+        /* 汇总 */
+        .summary-section {
+            background: #2c5282;
+            color: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .summary-title {
+            font-size: 22px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        .summary-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .summary-label {
+            font-size: 17px;
+            margin-bottom: 8px;
+        }
+        .summary-value {
+            font-size: 26px;
+            font-weight: bold;
+        }
+        .total-remaining {
+            color: #ffc107;
+        }
+
+        /* 底部按钮 */
+        .btn-group {
+            display: flex;
+            gap: 14px;
+            margin: 24px 0;
+        }
+        .btn {
+            flex: 1;
+            padding: 16px;
+            font-size: 17px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+        }
+        .btn-reset {
+            background: #e53e3e;
+        }
+        .btn-clear {
+            background: #718096;
+        }
+
+        @media (max-width: 768px) {
+            .number-btn {
+                width: calc((100% - 48px) / 7);
+                height: 48px;
+                line-height: 46px;
+                font-size: 15px;
+            }
+            .input-group input, .group-input-row input {
+                min-width: 0;
+                width: 100%;
+            }
+        }
+    </style>
+
+    <!-- Excel解析库（备用CDN，增加稳定性） -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <!-- 手机端导入按钮 → 支持微信/QQ/钉钉直接选文件 -->
+    <div class="mobile-import-box">
+        <div class="import-title">📂 Excel数据导入（手机直接用）</div>
+        <label class="file-input-label" for="excelFileInput">选择Excel文件</label>
+        <input type="file" id="excelFileInput" accept=".xlsx,.xls">
+        <div class="import-tip">
+            可从微信、QQ、钉钉直接打开文件<br>
+            表格列：支架编号、高度、宽度（支持.xlsx格式）<br>
+            第一行是表头，第二行开始是数据
+        </div>
+        <div class="import-success" id="importSuccess">✅ 导入成功，已自动填充所有支架数据</div>
+        <div class="import-error" id="importError">❌ 导入失败，请检查文件格式和内容</div>
+    </div>
+
+    <!-- 头部 -->
+    <div class="header">
+        <h1>C1304充填开采工作面充填算方系统</h1>
+        <p>长度固定1.75m | 1/67号架仅基础数据 | 自动统计有效架数</p>
+    </div>
+
+    <!-- 数字导航 -->
+    <div class="number-nav-wrapper">
+        <div class="number-nav" id="numberNav"></div>
+    </div>
+
+    <!-- 支架录入区 -->
+    <div class="bracket-section">
+        <h2 class="section-title">支架数据录入（点数字展开）</h2>
+        <div class="bracket-grid" id="bracketGrid"></div>
+    </div>
+
+    <!-- 保存基础数据 -->
+    <div class="save-section">
+        <button class="btn-save" id="saveBaseData">保存1-67号架基础数据</button>
+        <div class="save-status" id="saveStatus">✅ 基础数据已保存</div>
+    </div>
+
+    <!-- 67架总体积（在大标题上方） -->
+    <div class="total-filled-section">
+        <div class="total-filled-title">67架预计充填总体积</div>
+        <div class="total-filled-value" id="totalFilledVolume">0.00 m³</div>
+    </div>
+
+    <!-- 充填剩余方数计算 -->
+    <h2 class="remaining-calc-title">充填剩余方数计算</h2>
+
+    <!-- 分组统计 -->
+    <div class="group-section">
+        <h2 class="section-title">分组统计（输入还需充填高度）</h2>
+        <div class="group-grid" id="groupGrid"></div>
+    </div>
+
+    <!-- 汇总 -->
+    <div class="summary-section">
+        <h2 class="summary-title">工作面充填数据汇总</h2>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="summary-label">参与计算的有效架数</div>
+                <div class="summary-value" id="validBracketCount">0 架</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">工作面还需充填总量</div>
+                <div class="summary-value total-remaining" id="totalRemainingVolume">0.00 m³</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="btn-group">
+        <button class="btn btn-reset" id="resetAll">重置所有数据</button>
+        <button class="btn btn-clear" id="clearEmpty">清空未填写项</button>
+    </div>
+</div>
+
+<script>
+const BRACKET_COUNT = 67;
+const FIXED_LENGTH = 1.75;
+const EXCLUDE_BRACKETS = [1, 67];
+
+let groupNeedHeights = {};
+let savedBaseData = null;
+let totalValidBrackets = 0;
+let activeBracketNum = 1; // 默认激活1号架
+let savedBrackets = new Set();
+
+// 页面加载立即执行
+initNumberNav();
+initBracketItems();
+initGroupStats();
+bindEvents();
+calculateAllStats();
+// 默认展开1号架
+expandBracketItem(activeBracketNum);
+updateActiveNumberBtn(activeBracketNum);
+
+// 导航按钮
+function initNumberNav() {
+    const nav = document.getElementById('numberNav');
+    nav.innerHTML = '';
+    for (let i = 1; i <= BRACKET_COUNT; i++) {
+        const btn = document.createElement('span');
+        btn.className = `number-btn ${EXCLUDE_BRACKETS.includes(i) ? 'special' : ''}`;
+        btn.textContent = i;
+        btn.dataset.num = i;
+        btn.onclick = () => {
+            expandBracketItem(i);
+            updateActiveNumberBtn(i);
+        };
+        nav.appendChild(btn);
+    }
+}
+
+// 展开支架
+function expandBracketItem(num) {
+    // 隐藏所有支架项
+    document.querySelectorAll('.bracket-item').forEach(i => i.classList.remove('active'));
+    // 显示当前支架项
+    const el = document.getElementById(`bracket-${num}`);
+    if (el) {
+        el.classList.add('active');
+        // 更新切换按钮状态
+        updateBracketNavBtns(num);
+    }
+    activeBracketNum = num;
+}
+
+// 更新支架切换按钮状态
+function updateBracketNavBtns(num) {
+    // 获取当前支架的切换按钮
+    const prevBtn = document.getElementById(`prev-bracket-${num}`);
+    const nextBtn = document.getElementById(`next-bracket-${num}`);
+    
+    if (prevBtn) prevBtn.disabled = num <= 1;
+    if (nextBtn) nextBtn.disabled = num >= BRACKET_COUNT;
+}
+
+// 切换到上一架
+function goToPrevBracket(num) {
+    if (num > 1) {
+        const prevNum = num - 1;
+        expandBracketItem(prevNum);
+        updateActiveNumberBtn(prevNum);
+    }
+}
+
+// 切换到下一架
+function goToNextBracket(num) {
+    if (num < BRACKET_COUNT) {
+        const nextNum = num + 1;
+        expandBracketItem(nextNum);
+        updateActiveNumberBtn(nextNum);
+    }
+}
+
+function updateActiveNumberBtn(num) {
+    document.querySelectorAll('.number-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.querySelector(`.number-btn[data-num="${num}"]`);
+    if (btn) btn.classList.add('active');
+}
+
+// 生成支架项
+function initBracketItems() {
+    const grid = document.getElementById('bracketGrid');
+    grid.innerHTML = '';
+    for (let i = 1; i <= BRACKET_COUNT; i++) {
+        const item = document.createElement('div');
+        item.className = `bracket-item ${EXCLUDE_BRACKETS.includes(i) ? 'special' : ''}`;
+        item.id = `bracket-${i}`;
+        const tag = EXCLUDE_BRACKETS.includes(i) ? '<span class="special-tag">仅基础数据</span>' : '';
+        
+        item.innerHTML = `
+            <h3>${i}号支架 ${tag}</h3>
+            <div class="input-group">
+                <label>充填高度(m)：</label>
+                <input type="number" id="height-${i}" step="0.01" min="0" oninput="calcOne(${i})">
+            </div>
+            <div class="input-group">
+                <label>充填宽度(m)：</label>
+                <input type="number" id="width-${i}" step="0.01" min="0" oninput="calcOne(${i})">
+            </div>
+            <div class="input-group">
+                <label>固定长度(m)：</label>
+                <input value="${FIXED_LENGTH}" readonly style="background:#f5f5f5">
+            </div>
+            <div class="volume-display">
+                预计充填体积：<span id="volume-${i}">0.00</span> m³
+            </div>
+            <button class="btn-save-single" onclick="saveSingle(${i})">保存${i}号支架数据</button>
+            <div class="bracket-nav-btns">
+                <button class="bracket-nav-btn" id="prev-bracket-${i}" onclick="goToPrevBracket(${i})">上一架</button>
+                <button class="bracket-nav-btn" id="next-bracket-${i}" onclick="goToNextBracket(${i})">下一架</button>
+            </div>
+            <div class="save-success" id="save-success-${i}">✅ 已保存</div>
+        `;
+        grid.appendChild(item);
+    }
+}
+
+// 单个计算
+function calcOne(num) {
+    const w = parseFloat(document.getElementById(`width-${num}`).value) || 0;
+    const h = parseFloat(document.getElementById(`height-${num}`).value) || 0;
+    const v = (w * h * FIXED_LENGTH).toFixed(2);
+    document.getElementById(`volume-${num}`).textContent = v;
+    calculateAllStats();
+}
+
+// 保存单个
+function saveSingle(num) {
+    const w = parseFloat(document.getElementById(`width-${num}`).value) || 0;
+    const h = parseFloat(document.getElementById(`height-${num}`).value) || 0;
+    if (w <= 0 || h <= 0) { 
+        alert('请输入有效宽度高度'); 
+        return; 
+    }
+    savedBrackets.add(num);
+    const btn = document.querySelector(`.number-btn[data-num="${num}"]`);
+    if (btn) btn.classList.add('saved');
+    const tip = document.getElementById(`save-success-${num}`);
+    tip.style.display = 'block';
+    setTimeout(() => tip.style.display = 'none', 2000);
+    calculateAllStats();
+}
+
+// 分组
+function initGroupStats() {
+    const grid = document.getElementById('groupGrid');
+    const groups = [
+        {s:1,e:5,cs:2,ce:5},{s:6,e:10,cs:6,ce:10},{s:11,e:15,cs:11,ce:15},
+        {s:16,e:20,cs:16,ce:20},{s:21,e:25,cs:21,ce:25},{s:26,e:30,cs:26,ce:30},
+        {s:31,e:35,cs:31,ce:35},{s:36,e:40,cs:36,ce:40},{s:41,e:45,cs:41,ce:45},
+        {s:46,e:50,cs:46,ce:50},{s:51,e:55,cs:51,ce:55},{s:56,e:60,cs:56,ce:60},
+        {s:61,e:67,cs:61,ce:66}
+    ];
+    grid.innerHTML = '';
+    groups.forEach((g,i)=>{
+        const n=i+1;
+        const div=document.createElement('div');
+        div.className='group-item';
+        div.innerHTML=`
+            <h3>${g.s}-${g.e}号（第${n}组）</h3>
+            <div class="group-stat">
+                <span>计算范围：</span><span>${g.cs}-${g.ce}号</span>
+            </div>
+            <div class="group-stat">
+                <span>本组平均宽度：</span><span id="gaw${n}">0.00 m</span>
+            </div>
+            <div class="group-stat">
+                <span>有效架数：</span><span id="gcc${n}">0 架</span>
+            </div>
+            <div class="group-input-row">
+                <label>还需充填高度：</label>
+                <input type="number" step="0.01" min="0" oninput="setGroupHeight(${n},this.value)">
+            </div>
+            <div class="group-stat">
+                <span>本组还需充填：</span><span class="remaining-volume" id="gnv${n}">0.00 m³</span>
+            </div>
+        `;
+        grid.appendChild(div);
+        groupNeedHeights[n]=0;
+    });
+}
+
+function setGroupHeight(n,v){
+    groupNeedHeights[n]=parseFloat(v)||0;
+    calculateAllStats();
+}
+
+// 保存全部基础数据
+document.getElementById('saveBaseData').onclick=()=>{
+    let d={},has=false;
+    for(let i=1;i<=67;i++){
+        const w=parseFloat(document.getElementById(`width-${i}`).value)||0;
+        const h=parseFloat(document.getElementById(`height-${i}`).value)||0;
+        d[i]={w,h,v:(w*h*FIXED_LENGTH).toFixed(2)};
+        if(w>0&&h>0){has=true;savedBrackets.add(i);}
+    }
+    if(!has){alert('请先填写数据');return;}
+    savedBaseData=d;
+    savedBrackets.forEach(k=>{
+        const b=document.querySelector(`.number-btn[data-num="${k}"]`);
+        if(b)b.classList.add('saved');
+    });
+    const tip=document.getElementById('saveStatus');
+    tip.style.display='block';
+    setTimeout(()=>tip.style.display='none',3000);
+    calculateAllStats();
+};
+
+// 总计算
+function calculateAllStats() {
+    let totalFill=0,totalRemain=0,valid=0;
+    const groups=[
+        {s:1,e:5,cs:2,ce:5},{s:6,e:10,cs:6,ce:10},{s:11,e:15,cs:11,ce:15},
+        {s:16,e:20,cs:16,ce:20},{s:21,e:25,cs:21,ce:25},{s:26,e:30,cs:26,ce:30},
+        {s:31,e:35,cs:31,ce:35},{s:36,e:40,cs:36,ce:40},{s:41,e:45,cs:41,ce:45},
+        {s:46,e:50,cs:46,ce:50},{s:51,e:55,cs:51,ce:55},{s:56,e:60,cs:56,ce:60},
+        {s:61,e:67,cs:61,ce:66}
+    ];
+    groups.forEach((g,idx)=>{
+        const n=idx+1;
+        let sumW=0,c=0,sumV=0;
+        for(let j=g.cs;j<=g.ce;j++){
+            let w=0,h=0;
+            if(savedBaseData&&savedBaseData[j]){
+                w=savedBaseData[j].w;
+                h=savedBaseData[j].h;
+            }else{
+                w=parseFloat(document.getElementById(`width-${j}`).value)||0;
+                h=parseFloat(document.getElementById(`height-${j}`).value)||0;
+            }
+            if(w>0&&h>0){sumW+=w;sumV+=w*h*FIXED_LENGTH;c++;valid++;}
+        }
+        const avgW=c>0?(sumW/c).toFixed(2):0;
+        document.getElementById(`gaw${n}`).textContent=avgW+' m';
+        document.getElementById(`gcc${n}`).textContent=c+' 架';
+        totalFill+=sumV;
+        const need=groupNeedHeights[n]||0;
+        const nv=(parseFloat(avgW)*FIXED_LENGTH*need*c).toFixed(2);
+        document.getElementById(`gnv${n}`).textContent=nv+' m³';
+        totalRemain+=parseFloat(nv);
+    });
+    document.getElementById('totalFilledVolume').textContent=totalFill.toFixed(2)+' m³';
+    document.getElementById('validBracketCount').textContent=valid+' 架';
+    document.getElementById('totalRemainingVolume').textContent=totalRemain.toFixed(2)+' m³';
+}
+
+// 重置
+document.getElementById('resetAll').onclick=()=>{
+    if(!confirm('确定重置所有？'))return;
+    for(let i=1;i<=67;i++){
+        document.getElementById(`width-${i}`).value='';
+        document.getElementById(`height-${i}`).value='';
+        document.getElementById(`volume-${i}`).textContent='0.00';
+    }
+    savedBrackets.clear();
+    savedBaseData=null;
+    document.querySelectorAll('.number-btn').forEach(b=>b.classList.remove('saved','active'));
+    calculateAllStats();
+};
+
+// 清空空项
+document.getElementById('clearEmpty').onclick=()=>{
+    if(!confirm('确定清空未填写项？'))return;
+    for(let i=1;i<=67;i++){
+        const w=document.getElementById(`width-${i}`).value;
+        const h=document.getElementById(`height-${i}`).value;
+        if((!w||w==0)&&(!h||h==0)){
+            document.getElementById(`width-${i}`).value='';
+            document.getElementById(`height-${i}`).value='';
+        }
+    }
+    calculateAllStats();
+};
+
+// ========== 增强版Excel导入功能（核心修复） ==========
+document.getElementById('excelFileInput').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // 隐藏之前的提示
+    document.getElementById('importSuccess').style.display = 'none';
+    document.getElementById('importError').style.display = 'none';
+
+    try {
+        // 1. 校验文件格式
+        const fileExt = file.name.split('.').pop().toLowerCase();
+        if (!['xlsx', 'xls'].includes(fileExt)) {
+            throw new Error('文件格式错误，请选择.xlsx格式的Excel文件');
+        }
+
+        // 2. 读取文件（兼容手机端）
+        const data = await readFileAsync(file);
+        if (!data || data.length === 0) {
+            throw new Error('文件为空或读取失败');
+        }
+
+        // 3. 解析Excel
+        const workbook = XLSX.read(data, { 
+            type: 'array',
+            cellText: true,
+            cellDates: false
+        });
+
+        if (workbook.SheetNames.length === 0) {
+            throw new Error('Excel文件中没有工作表');
+        }
+
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        
+        // 4. 转换为数组（更宽松的解析方式）
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+            header: ['col1', 'col2', 'col3'], // 通用列名，避免表头识别错误
+            defval: '', // 空值默认空字符串
+            raw: false // 不使用原始值，自动转换类型
+        });
+
+        if (jsonData.length <= 1) {
+            throw new Error('Excel中没有有效数据（至少需要表头+1行数据）');
+        }
+
+        // 5. 数据解析（容错逻辑大幅增强）
+        let importCount = 0;
+        let errorRows = [];
+
+        // 遍历数据行（跳过表头行）
+        for (let i = 1; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            const rowNum = i + 1; // 实际Excel行号
+
+            // 提取数据（支持多列名/多列位置）
+            let no = '';
+            let height = '';
+            let width = '';
+
+            // 尝试从不同列提取支架编号
+            if (row.col1) no = row.col1;
+            else if (row['支架编号']) no = row['支架编号'];
+            else if (row['编号']) no = row['编号'];
+
+            // 尝试从不同列提取高度
+            if (row.col2) height = row.col2;
+            else if (row['高度']) height = row['高度'];
+            else if (row['高']) height = row['高'];
+
+            // 尝试从不同列提取宽度
+            if (row.col3) width = row.col3;
+            else if (row['宽度']) width = row['宽度'];
+            else if (row['宽']) width = row['宽'];
+
+            // 数据清洗和转换
+            no = String(no).trim().replace(/[^0-9]/g, ''); // 只保留数字
+            height = String(height).trim().replace(/[^0-9.]/g, ''); // 只保留数字和小数点
+            width = String(width).trim().replace(/[^0-9.]/g, '');
+
+            // 数据校验
+            const noNum = parseInt(no);
+            const heightNum = parseFloat(height);
+            const widthNum = parseFloat(width);
+
+            if (isNaN(noNum) || noNum < 1 || noNum > 67) {
+                errorRows.push(`第${rowNum}行：支架编号无效（${no}）`);
+                continue;
+            }
+            if (isNaN(heightNum) || heightNum <= 0 || heightNum > 10) {
+                errorRows.push(`第${rowNum}行：高度无效（${height}）`);
+                continue;
+            }
+            if (isNaN(widthNum) || widthNum <= 0 || widthNum > 10) {
+                errorRows.push(`第${rowNum}行：宽度无效（${width}）`);
+                continue;
+            }
+
+            // 6. 填充数据到页面
+            document.getElementById(`height-${noNum}`).value = heightNum.toFixed(2);
+            document.getElementById(`width-${noNum}`).value = widthNum.toFixed(2);
+            calcOne(noNum);
+            savedBrackets.add(noNum);
+            importCount++;
+        }
+
+        // 7. 更新UI状态
+        // 更新保存状态
+        document.querySelectorAll('.number-btn').forEach(b => {
+            if (savedBrackets.has(+b.dataset.num)) b.classList.add('saved');
+        });
+        
+        // 重新计算统计
+        calculateAllStats();
+        
+        // 显示导入结果
+        document.getElementById('importSuccess').style.display = 'block';
+        setTimeout(() => document.getElementById('importSuccess').style.display = 'none', 5000);
+
+        // 8. 导入结果提示
+        let msg = `导入完成！\n成功导入 ${importCount} 个支架数据`;
+        if (errorRows.length > 0) {
+            msg += `\n\n以下行数据无效（已跳过）：\n${errorRows.slice(0, 10).join('\n')}`;
+            if (errorRows.length > 10) {
+                msg += `\n...还有 ${errorRows.length - 10} 行错误`;
+            }
+        }
+        alert(msg);
+
+    } catch (error) {
+        // 错误处理
+        console.error('导入失败详情：', error);
+        document.getElementById('importError').style.display = 'block';
+        setTimeout(() => document.getElementById('importError').style.display = 'none', 5000);
+        alert(`导入失败！\n原因：${error.message}`);
+    } finally {
+        // 清空文件选择器，避免重复导入
+        e.target.value = '';
+    }
+});
+
+// 封装文件读取为Promise（增加超时和错误处理）
+function readFileAsync(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        const timeout = setTimeout(() => {
+            reader.abort();
+            reject(new Error('文件读取超时，请检查文件大小（建议小于10MB）'));
+        }, 30000); // 30秒超时
+
+        reader.onload = (e) => {
+            clearTimeout(timeout);
+            try {
+                resolve(new Uint8Array(e.target.result));
+            } catch (err) {
+                reject(new Error('文件数据转换失败'));
+            }
+        };
+
+        reader.onerror = (e) => {
+            clearTimeout(timeout);
+            reject(new Error(`文件读取失败：${e.target.error?.message || '未知错误'}`));
+        };
+
+        reader.onabort = () => {
+            clearTimeout(timeout);
+            reject(new Error('文件读取被中止'));
+        };
+
+        reader.readAsArrayBuffer(file);
+    });
+}
+
+function bindEvents(){}
+</script>
+</body>
 </html>
