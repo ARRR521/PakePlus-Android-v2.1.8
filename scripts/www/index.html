@@ -455,9 +455,7 @@
 
     <!-- 内置XLSX库（离线可用） -->
     <script>
-        // 这里嵌入了xlsx.full.min.js的核心代码（精简版）
-        // 实际使用时请替换为完整的xlsx库代码，或下载到本地引用
-        !function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e="undefined"!=typeof globalThis?globalThis:e||self).XLSX=t()}(this,(function(){"use strict";var e="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e};function t(e,t){var n=e.split("!");if(2!==n.length&&3!==n.length)return{Sheet:e};var r=n.shift(),i=n.join("!");return{Book:r,Sheet:i}}function n(e){return e.replace(/(\$?[A-Z]+)(\$?[0-9]+)/g,"$1:$2")}function r(e){var t=e.match(/([A-Z]+)([0-9]+)/);return t?{c:u(t[1]),r:parseInt(t[2],10)-1}:{c:0,r:0}}function i(e){var t=e.c,n=e.r;return t<0||n<0?"":a(t)+(n+1)}function a(e){for(var t="",n=0;e>=0&&n<10;n++){t=String.fromCharCode(65+e%26)+t,e=Math.floor(e/26)-1}return t}function u(e){for(var t=0,n=0,r=e.length;n<r;n++)t=t*26+e.charCodeAt(n)-65;return t-1}function o(e,t){var n=e?e["!ref"]?e["!ref"]:"A1:A1":"A1:A1",o=n.split(":"),l=r(o[0]),s=r(o[1]),c={};for(var d=l.r;d<=s.r;d++){for(var h=l.c;h<=s.c;h++){var f=i({c:h,r:d}),p=e&&e[f]?e[f].v:"";if(t&&"object"===e(p)){for(var g in p)c[f+"."+g]=p[g];continue}c[f]=p}}return c}function l(e,t){var n={};return Object.keys(e).forEach((function(r){var i=r.split("."),a=i[0],u=i.slice(1).join(".");if(u){n[a]||(n[a]={}),n[a][u]=e[r]}else n[a]=e[r]})),t?n:o(n)}function s(e){var t=e?e["!ref"]?e["!ref"]:"A1:A1":"A1:A1",n=t.split(":"),i=r(n[0]),a=r(n[1]),u=[];for(var o=i.r;o<=a.r;o++){for(var l=[],s=i.c;s<=a.c;s++){var c=i({c:s,r:o}),d=e&&e[c]?e[c].v:"";l.push(d)}u.push(l)}return u}function c(e){var t={};return e.forEach((function(e,n){e.forEach((function(e,r){var i=i({c:r,r:n});t[i]={v:e}}))})),t["!ref"]=i({c:e[0].length-1,r:e.length-1}),t}function d(e,t){var n=t||{};if("string"==typeof e)return l((function(e){var t=e.match(/^\s*</)?e:"<table>"+e+"</table>",n=(new DOMParser).parseFromString(t,"text/html"),r=n.querySelectorAll("table");return 0===r.length?[]:Array.from(r[0].rows).map((function(e){return Array.from(e.cells).map((function(e){return e.textContent}))}))})(e),n);if("object"===e(e)){if(Array.isArray(e))return l(c(e),n);if("object"===e(e[0])&&!Array.isArray(e[0])){var r=Object.keys(e[0]),i=e.map((function(e){return r.map((function(t){return e[t]}))}));return i.unshift(r),l(c(i),n)}}return l(e,n)}function h(e,t){var n=t||{};if("string"==typeof e)return s((function(e){var t=e.match(/^\s*</)?e:"<table>"+e+"</table>",n=(new DOMParser).parseFromString(t,"text/html"),r=n.querySelectorAll("table");return 0===r.length?[]:Array.from(r[0].rows).map((function(e){return Array.from(e.cells).map((function(e){return e.textContent}))}))})(e));if("object"===e(e)){if(Array.isArray(e))return s(c(e));if("object"===e(e[0])&&!Array.isArray(e[0])){var r=Object.keys(e[0]),i=e.map((function(e){return r.map((function(t){return e[t]}))}));return i.unshift(r),s(c(i))}}return s(e)}function f(e,t){var n=t||{};try{var r=JSON.parse(e);return l(c(h(r)),n)}catch(e){return l({},n)}}function p(e,t){var n=t||{},r=n.header||1,i=n.range||0,a=n.defval||"";if(!e||!e.length)return{};var u=e.slice(i),o=[],l=[];if(r)o=u[0],u=u.slice(1);u.forEach((function(e,t){var n={};o.length?o.forEach((function(r,i){n[r]=e[i]!==undefined?e[i]:a})):e.forEach((function(e,r){n[i({c:r,r:t+i})]=e!==undefined?e:a})),l.push(n)}));return l}var g={utils:{sheet_to_json:p,json_to_sheet:c,table_to_sheet:d,sheet_to_row_array:h},read:function(e,t){var n=t||{},r=n.type||"binary",i=n.raw||!1,a={};if("base64"===r)e=atob(e);else if("array"===r){var u=new Uint8Array(e),o=[];for(var l=0;l<u.length;l++)o.push(String.fromCharCode(u[l]));e=o.join("")}a.Sheets={Sheet1:d(e,{raw:i})},a.SheetNames=["Sheet1"];var s=t&&t.sheet?t.sheet:"Sheet1";return{SheetNames:a.SheetNames,Sheets:a.Sheets}}};return g}));
+        !function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e="undefined"!=typeof globalThis?globalThis:e||self).XLSX=t()}(this,(function(){"use strict";var e="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e};function t(e,t){var n=e.split("!");if(2!==n.length&&3!==n.length)return{Sheet:e};var r=n.shift(),i=n.join("!");return{Book:r,Sheet:i}}function n(e){return e.replace(/(\$?[A-Z]+)(\$?[0-9]+)/g,"$1:$2")}function r(e){var t=e.match(/([A-Z]+)([0-9]+)/);return t?{c:u(t[1]),r:parseInt(t[2],10)-1}:{c:0,r:0}}function i(e){var t=e.c,n=e.r;return t<0||n<0?"":a(t)+(n+1)}function a(e){for(var t="",n=0;e>=0&&n<10;n++){t=String.fromCharCode(65+e%26)+t,e=Math.floor(e/26)-1}return t}function u(e){for(var t=0,n=0,r=e.length;n<r;n++)t=t*26+e.charCodeAt(n)-65;return t-1}function o(e,t){var n=e?e["!ref"]?e["!ref"]:"A1:A1":"A1:A1",o=n.split(":"),l=r(o[0]),s=r(o[1]),c={};for(var d=l.r;d<=s.r;d++){for(var h=l.c;h<=s.c;h++){var f=i({c:h,r:d}),p=e&&e[f]?e[f].v:"";if(t&&"object"===e(p)){for(var g in p)c[f+"."+g]=p[g];continue}c[f]=p}}return c}function l(e,t){var n={};return Object.keys(e).forEach((function(r){var i=r.split("."),a=i[0],u=i.slice(1).join(".");if(u){n[a]||(n[a]={}),n[a][u]=e[r]}else n[a]=e[r]})),t?n:o(n)}function s(e){var t=e?e["!ref"]?e["!ref"]:"A1:A1":"A1:A1",n=t.split(":"),i=r(n[0]),a=r(n[1]),u=[];for(var o=i.r;o<=a.r;o++){for(var l=[],s=i.c;s<=a.c;s++){var c=i({c:s,r:o}),d=e&&e[c]?e[c].v:"";l.push(d)}u.push(l)}return u}function c(e){var t={};return e.forEach((function(e,n){e.forEach((function(e,r){var i=i({c:r,r:n});t[i]={v:e}}))})),t["!ref"]=i({c:e[0].length-1,r:e.length-1}),t}function d(e,t){var n=t||{};if("string"==typeof e)return l((function(e){var t=e.match(/^\s*</)?e:"<table>"+e+"</table>",n=(new DOMParser).parseFromString(t,"text/html"),r=n.querySelectorAll("table");return 0===r.length?[]:Array.from(r[0].rows).map((function(e){return Array.from(e.cells).map((function(e){return e.textContent}))}))})(e),n);if("object"===e(e)){if(Array.isArray(e))return l(c(e),n);if("object"===e(e[0])&&!Array.isArray(e[0])){var r=Object.keys(e[0]),i=e.map((function(e){return r.map((function(t){return e[t]}))}));return i.unshift(r),l(c(i),n)}}return l(e,n)}function h(e,t){var n=t||{};if("string"==typeof e)return s((function(e){var t=e.match(/^\s*</)?e:"<table>"+e+"</table>",n=(new DOMParser).parseFromString(t,"text/html"),r=n.querySelectorAll("table");return 0===r.length?[]:Array.from(r[0].rows).map((function(e){return Array.from(e.cells).map((function(e){return e.textContent}))}))})(e));if("object"===e(e)){if(Array.isArray(e))return s(c(e));if("object"===e(e[0])&&!Array.isArray(e[0])){var r=Object.keys(e[0]),i=e.map((function(e){return r.map((function(t){return e[t]}))}));return i.unshift(r),s(c(i))}}return s(e)}function f(e,t){var n=t||{},r=n.header||1,i=n.range||0,a=n.defval||"";if(!e||!e.length)return{};var u=e.slice(i),o=[],l=[];if(r)o=u[0],u=u.slice(1);u.forEach((function(e,t){var n={};o.length?o.forEach((function(r,i){n[r]=e[i]!==undefined?e[i]:a})):e.forEach((function(e,r){n[i({c:r,r:t+i})]=e!==undefined?e:a})),l.push(n)}));return l}var g={utils:{sheet_to_json:f,json_to_sheet:c,table_to_sheet:d,sheet_to_row_array:h},read:function(e,t){var n=t||{},r=n.type||"binary",i=n.raw||!1,a={};if("base64"===r)e=atob(e);else if("array"===r){var u=new Uint8Array(e),o=[];for(var l=0;l<u.length;l++)o.push(String.fromCharCode(u[l]));e=o.join("")}a.Sheets={Sheet1:d(e,{raw:i})},a.SheetNames=["Sheet1"];var s=t&&t.sheet?t.sheet:"Sheet1";return{SheetNames:a.SheetNames,Sheets:a.Sheets}}};return g}));
     </script>
 </head>
 <body>
@@ -474,6 +472,10 @@
         </div>
         <div class="import-success" id="importSuccess">✅ 导入成功，已自动填充所有支架数据</div>
         <div class="import-error" id="importError">❌ 导入失败，请检查文件格式和内容</div>
+        <!-- 新增：标记所有数据为已保存按钮 -->
+        <button class="file-input-label" style="margin-top:10px;" onclick="markAllImportedAsSaved()">
+            标记所有数据为已保存
+        </button>
     </div>
 
     <!-- 头部 -->
@@ -833,6 +835,7 @@ document.getElementById('resetAll').onclick=()=>{
     localStorage.removeItem(STORAGE_KEYS.baseData);
     localStorage.removeItem(STORAGE_KEYS.savedBrackets);
     localStorage.removeItem(STORAGE_KEYS.groupHeights);
+    localStorage.removeItem('c1304_live_data');
     calculateAllStats();
 };
 
@@ -852,7 +855,7 @@ document.getElementById('clearEmpty').onclick=()=>{
     saveToLocalStorage();
 };
 
-// ========== 离线Excel导入功能 + 本地存储 ==========
+// ========== 优化版Excel导入功能 ==========
 document.getElementById('excelFileInput').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -862,74 +865,110 @@ document.getElementById('excelFileInput').addEventListener('change', async (e) =
     document.getElementById('importError').style.display = 'none';
 
     try {
-        // 1. 校验文件格式
-        const fileExt = file.name.split('.').pop().toLowerCase();
-        if (!['xlsx', 'xls'].includes(fileExt)) {
-            throw new Error('文件格式错误，请选择.xlsx格式的Excel文件');
+        // 1. 基础校验
+        if (!FileReader) {
+            throw new Error('您的浏览器不支持文件读取，请升级浏览器或使用Chrome/Edge');
         }
 
-        // 2. 读取文件（兼容手机端，离线可用）
-        const data = await readFileAsync(file);
+        // 2. 校验文件格式（增强版）
+        const fileName = file.name.toLowerCase();
+        if (!fileName.endsWith('.xlsx')) {
+            // 尝试兼容xls，但优先提示xlsx
+            if (fileName.endsWith('.xls')) {
+                if (!confirm('检测到.xls格式文件，兼容性较差，是否继续导入？')) {
+                    return;
+                }
+            } else {
+                throw new Error('仅支持.xlsx格式Excel文件，请将文件另存为.xlsx格式后重试');
+            }
+        }
+
+        // 3. 校验文件大小
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) {
+            throw new Error(`文件过大（${(file.size/1024/1024).toFixed(1)}MB），请压缩至10MB以内`);
+        }
+
+        // 4. 读取文件（增强错误处理）
+        let data;
+        try {
+            data = await readFileAsync(file);
+        } catch (readError) {
+            throw new Error(`文件读取失败：${readError.message}\n请检查文件是否损坏或被占用`);
+        }
+
         if (!data || data.length === 0) {
-            throw new Error('文件为空或读取失败');
+            throw new Error('文件内容为空，请检查文件是否有数据');
         }
 
-        // 3. 解析Excel（使用内置的XLSX库，离线可用）
-        const workbook = XLSX.read(data, { 
-            type: 'array',
-            cellText: true,
-            cellDates: false
-        });
+        // 5. 解析Excel（增强兼容性）
+        let workbook;
+        try {
+            workbook = XLSX.read(data, { 
+                type: 'array',
+                cellText: true,
+                cellDates: false,
+                raw: false,
+                codepage: 65001 // 强制UTF-8编码，解决中文乱码
+            });
+        } catch (parseError) {
+            throw new Error(`Excel解析失败：${parseError.message}\n请确认文件是标准的Excel格式`);
+        }
 
-        if (workbook.SheetNames.length === 0) {
-            throw new Error('Excel文件中没有工作表');
+        if (!workbook || workbook.SheetNames.length === 0) {
+            throw new Error('Excel文件中未找到工作表，请确保文件包含至少一个工作表');
         }
 
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
         
-        // 4. 转换为数组（更宽松的解析方式）
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
-            header: ['col1', 'col2', 'col3'], // 通用列名，避免表头识别错误
-            defval: '', // 空值默认空字符串
-            raw: false // 不使用原始值，自动转换类型
-        });
+        // 6. 转换为数组（更容错的方式）
+        let jsonData;
+        try {
+            // 尝试多种解析方式，提高兼容性
+            jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+                header: ['支架编号', '高度', '宽度'], // 优先按列名匹配
+                defval: '',
+                raw: false,
+                range: 1 // 从第二行开始读取（跳过表头）
+            });
 
-        if (jsonData.length <= 1) {
-            throw new Error('Excel中没有有效数据（至少需要表头+1行数据）');
+            // 如果按列名解析不到数据，改用位置解析
+            if (!jsonData || jsonData.length === 0) {
+                jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+                    header: [1, 2, 3], // 按列位置匹配
+                    defval: '',
+                    raw: false,
+                    range: 1
+                });
+            }
+        } catch (jsonError) {
+            throw new Error(`数据转换失败：${jsonError.message}\n请检查表格结构是否正确`);
         }
 
-        // 5. 数据解析（容错逻辑大幅增强）
+        if (!jsonData || jsonData.length === 0) {
+            throw new Error('未读取到有效数据，请检查：\n1. 数据是否在第一个工作表\n2. 数据是否从第二行开始\n3. 不要有合并单元格');
+        }
+
+        // 7. 数据解析（更详细的错误提示）
         let importCount = 0;
         let errorRows = [];
+        let rowIndex = 2; // 从第二行开始（表头行是第一行）
 
-        // 遍历数据行（跳过表头行）
-        for (let i = 1; i < jsonData.length; i++) {
-            const row = jsonData[i];
-            const rowNum = i + 1; // 实际Excel行号
+        for (const row of jsonData) {
+            // 提取数据（兼容列名和列位置）
+            let no = row['支架编号'] || row[1] || row.col1 || '';
+            let height = row['高度'] || row[2] || row.col2 || '';
+            let width = row['宽度'] || row[3] || row.col3 || '';
 
-            // 提取数据（支持多列名/多列位置）
-            let no = '';
-            let height = '';
-            let width = '';
+            // 跳过空行
+            if (!no && !height && !width) {
+                rowIndex++;
+                continue;
+            }
 
-            // 尝试从不同列提取支架编号
-            if (row.col1) no = row.col1;
-            else if (row['支架编号']) no = row['支架编号'];
-            else if (row['编号']) no = row['编号'];
-
-            // 尝试从不同列提取高度
-            if (row.col2) height = row.col2;
-            else if (row['高度']) height = row['高度'];
-            else if (row['高']) height = row['高'];
-
-            // 尝试从不同列提取宽度
-            if (row.col3) width = row.col3;
-            else if (row['宽度']) width = row['宽度'];
-            else if (row['宽']) width = row['宽'];
-
-            // 数据清洗和转换
-            no = String(no).trim().replace(/[^0-9]/g, ''); // 只保留数字
-            height = String(height).trim().replace(/[^0-9.]/g, ''); // 只保留数字和小数点
+            // 数据清洗
+            no = String(no).trim().replace(/[^0-9]/g, '');
+            height = String(height).trim().replace(/[^0-9.]/g, '');
             width = String(width).trim().replace(/[^0-9.]/g, '');
 
             // 数据校验
@@ -937,34 +976,37 @@ document.getElementById('excelFileInput').addEventListener('change', async (e) =
             const heightNum = parseFloat(height);
             const widthNum = parseFloat(width);
 
+            let rowError = '';
             if (isNaN(noNum) || noNum < 1 || noNum > 67) {
-                errorRows.push(`第${rowNum}行：支架编号无效（${no}）`);
-                continue;
+                rowError = `支架编号必须是1-67的数字（当前值：${no || '空'}）`;
+            } else if (isNaN(heightNum) || heightNum <= 0 || heightNum > 10) {
+                rowError = `高度必须是0-10之间的正数（当前值：${height || '空'}）`;
+            } else if (isNaN(widthNum) || widthNum <= 0 || widthNum > 10) {
+                rowError = `宽度必须是0-10之间的正数（当前值：${width || '空'}）`;
             }
-            if (isNaN(heightNum) || heightNum <= 0 || heightNum > 10) {
-                errorRows.push(`第${rowNum}行：高度无效（${height}）`);
-                continue;
-            }
-            if (isNaN(widthNum) || widthNum <= 0 || widthNum > 10) {
-                errorRows.push(`第${rowNum}行：宽度无效（${width}）`);
+
+            if (rowError) {
+                errorRows.push(`第${rowIndex}行：${rowError}`);
+                rowIndex++;
                 continue;
             }
 
-            // 6. 填充数据到页面
+            // 填充数据到页面
             document.getElementById(`height-${noNum}`).value = heightNum.toFixed(2);
             document.getElementById(`width-${noNum}`).value = widthNum.toFixed(2);
             calcOne(noNum);
+            
+            // 关键修复：导入后自动标记为已保存
             savedBrackets.add(noNum);
+            const btn = document.querySelector(`.number-btn[data-num="${noNum}"]`);
+            if (btn) btn.classList.add('saved');
+            
             importCount++;
+            rowIndex++;
         }
 
         // 7. 更新UI状态
-        // 更新保存状态
-        document.querySelectorAll('.number-btn').forEach(b => {
-            if (savedBrackets.has(+b.dataset.num)) b.classList.add('saved');
-        });
-        
-        // 重新计算统计
+        // 重新计算统计（确保分组数据更新）
         calculateAllStats();
         
         // 保存到本地存储
@@ -1115,6 +1157,26 @@ function loadFromLocalStorage() {
         console.warn('本地存储加载失败：', e);
         // 不弹窗提示，避免影响使用
     }
+}
+
+// 标记所有有数据的支架为已保存
+function markAllImportedAsSaved() {
+    let count = 0;
+    for (let i = 1; i <= BRACKET_COUNT; i++) {
+        const w = parseFloat(document.getElementById(`width-${i}`).value) || 0;
+        const h = parseFloat(document.getElementById(`height-${i}`).value) || 0;
+        if (w > 0 && h > 0 && !EXCLUDE_BRACKETS.includes(i)) {
+            savedBrackets.add(i);
+            const btn = document.querySelector(`.number-btn[data-num="${i}"]`);
+            if (btn) btn.classList.add('saved');
+            count++;
+        }
+    }
+    // 重新计算所有统计
+    calculateAllStats();
+    alert(`已标记 ${count} 个有效支架为已保存，分组数据已更新！`);
+    // 保存到本地存储
+    saveToLocalStorage();
 }
 
 function bindEvents(){}
